@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>課間活動挑選器 · Between-class Activity Picker</title>
+  <style>
+    :root {
+      font-family: "Segoe UI", "Noto Sans TC", system-ui, sans-serif;
+      color: #183b3a;
+      background: #f2f6ef;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --ink: #183b3a;
+      --green: #176b58;
+      --mint: #dff2e7;
+      --gold: #e6ae55;
+      --line: #cddbd2;
+      --paper: #fffefa;
+      --muted: #536d65;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 90% 0%, #e1f1e4 0, transparent 38rem), #f2f6ef; }
+    .shell { width: min(100% - 2rem, 1050px); margin: 0 auto; padding: 1.5rem 0 2.5rem; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin: .5rem 0 1.5rem; }
+    .brand { display: flex; align-items: center; gap: .8rem; }
+    .brand-mark { width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: 1rem; background: var(--green); color: white; font-size: 1.45rem; }
+    .eyebrow { margin: 0 0 .15rem; color: var(--green); font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; color: var(--ink); font-size: clamp(1.35rem, 4vw, 2rem); line-height: 1.2; }
+    .language { display: inline-flex; padding: .25rem; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .language button { border: 0; border-radius: 999px; background: transparent; padding: .45rem .75rem; color: var(--muted); font-weight: 700; }
+    .language button[aria-pressed="true"] { background: var(--ink); color: white; }
+    main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 1.1rem; align-items: start; }
+    .panel { border: 1px solid var(--line); border-radius: 1.25rem; background: var(--paper); box-shadow: 0 12px 30px #163c3010; }
+    .picker { padding: clamp(1.1rem, 3vw, 1.75rem); }
+    .panel h2 { margin: 0; font-size: 1.15rem; }
+    .intro { margin: .45rem 0 1.4rem; max-width: 55ch; color: var(--muted); line-height: 1.55; }
+    .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+    label { display: grid; gap: .4rem; color: #31564d; font-size: .85rem; font-weight: 750; }
+    select { width: 100%; min-height: 2.85rem; border: 1px solid #b8cdc0; border-radius: .75rem; padding: .55rem .7rem; color: var(--ink); background: white; }
+    select:focus-visible, button:focus-visible { outline: 3px solid #e6ae55; outline-offset: 2px; }
+    .actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+    .primary, .secondary, .clear { min-height: 2.8rem; border-radius: .75rem; padding: .6rem 1rem; font-weight: 800; }
+    .primary { border: 0; background: var(--green); color: white; }
+    .primary:hover { background: #105744; }
+    .secondary, .clear { border: 1px solid #b8cdc0; background: white; color: var(--ink); }
+    .secondary:hover, .clear:hover { background: #eef6ef; }
+    .result { margin-top: 1.3rem; min-height: 11rem; border: 1px dashed #b6cec0; border-radius: 1rem; padding: 1.1rem; background: #f6faf5; }
+    .result.empty { display: grid; align-content: center; }
+    .result-kicker { margin: 0 0 .3rem; color: var(--green); font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .result h3 { margin: 0 0 .85rem; font-size: clamp(1.4rem, 4vw, 1.9rem); line-height: 1.25; }
+    .placeholder { margin: 0; color: var(--muted); line-height: 1.5; }
+    .message { margin: 0; color: #713f22; font-weight: 750; }
+    .tags { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .tag { display: inline-flex; align-items: center; gap: .28rem; border-radius: 999px; padding: .35rem .65rem; background: var(--mint); color: #234c40; font-size: .82rem; font-weight: 700; }
+    .history { padding: 1.25rem; }
+    .history-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .4rem; }
+    .clear { min-height: 2.35rem; padding: .4rem .65rem; font-size: .82rem; }
+    .history-note { margin: 0 0 1rem; color: var(--muted); font-size: .85rem; }
+    .history-list { display: grid; gap: .55rem; padding: 0; margin: 0; list-style: none; }
+    .history-item { display: grid; grid-template-columns: 3.25rem 1fr; gap: .7rem; align-items: center; border: 1px solid #dce6df; border-radius: .85rem; padding: .65rem .7rem; }
+    .history-id { display: grid; place-items: center; min-height: 2rem; border-radius: .6rem; background: #edf3ed; color: var(--green); font-size: .78rem; font-weight: 850; }
+    .history-name { font-weight: 750; line-height: 1.3; }
+    .history-meta { margin-top: .15rem; color: var(--muted); font-size: .77rem; }
+    .history-empty { border: 1px dashed var(--line); border-radius: .8rem; padding: 1rem; color: var(--muted); text-align: center; }
+    footer { margin-top: 1rem; padding: .85rem 1rem; color: #4d665e; font-size: .82rem; text-align: center; }
+    @media (max-width: 720px) { .shell { width: min(100% - 1.1rem, 600px); padding-top: 1rem; } main { grid-template-columns: 1fr; } header { align-items: center; } }
+    @media (max-width: 460px) { .filters { grid-template-columns: 1fr; gap: .65rem; } .brand-mark { width: 2.6rem; height: 2.6rem; } .picker, .history { padding: 1rem; } .language button { padding: .4rem .58rem; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">✦</div>
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">A SMALL CAMPUS BREAK</p>
+          <h1 data-i18n="title">課間，我想做什麼？</h1>
+        </div>
+      </div>
+      <div class="language" role="group" aria-label="Language / 語言">
+        <button id="lang-zh" type="button" aria-pressed="true">中文</button>
+        <button id="lang-en" type="button" aria-pressed="false">EN</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel picker" aria-labelledby="picker-title">
+        <h2 id="picker-title" data-i18n="pickerHeading">挑一個適合現在的活動</h2>
+        <p class="intro" data-i18n="intro">設定地點、時間與精力，再從符合全部條件的活動中隨機挑選。</p>
+        <div class="filters">
+          <label><span data-i18n="locationLabel">地點</span>
+            <select id="location">
+              <option value="all" data-i18n="allLocations">不限地點</option>
+              <option value="indoor" data-i18n="indoor">室內</option>
+              <option value="outdoor" data-i18n="outdoor">室外</option>
+            </select>
+          </label>
+          <label><span data-i18n="timeLabel">可用時間</span>
+            <select id="time">
+              <option value="15" data-i18n="time15">15 分鐘內</option>
+              <option value="30" selected data-i18n="time30">30 分鐘內</option>
+              <option value="60" data-i18n="time60">60 分鐘內</option>
+            </select>
+          </label>
+          <label><span data-i18n="energyLabel">精力</span>
+            <select id="energy">
+              <option value="all" data-i18n="allEnergy">不限精力</option>
+              <option value="low" data-i18n="low">低</option>
+              <option value="medium" data-i18n="medium">中</option>
+            </select>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="primary" id="pick" type="button" data-i18n="pickButton">幫我選一個</button>
+          <button class="secondary" id="reset" type="button" data-i18n="resetButton">重設篩選</button>
+        </div>
+        <div class="result empty" id="result" aria-live="polite" aria-atomic="true">
+          <p class="result-kicker" data-i18n="resultKicker">你的下一個小休息</p>
+          <p class="placeholder" data-i18n="placeholder">選好條件後，按「幫我選一個」。</p>
+        </div>
+      </section>
+
+      <section class="panel history" aria-labelledby="history-title">
+        <div class="history-head">
+          <h2 id="history-title" data-i18n="historyHeading">最近選過</h2>
+          <button class="clear" id="clear" type="button" data-i18n="clearButton">清空紀錄</button>
+        </div>
+        <p class="history-note" data-i18n="historyNote">只保留這個頁面工作階段最近 5 次成功抽選。</p>
+        <ol class="history-list" id="history" aria-live="polite"></ol>
+      </section>
+    </main>
+    <footer data-i18n="disclaimer">教學模擬活動；不是校方公告。</footer>
+  </div>
+
+  <script>
+    "use strict";
+    const activities = [
+      { id: "A01", name_zh: "整理書包", name_en: "Organize your bag", location_type: "indoor", minutes: 10, energy: "low" },
+      { id: "A02", name_zh: "畫一張小卡", name_en: "Draw a small card", location_type: "indoor", minutes: 15, energy: "low" },
+      { id: "A03", name_zh: "寫三句讀書筆記", name_en: "Write three study notes", location_type: "indoor", minutes: 10, energy: "low" },
+      { id: "A04", name_zh: "安靜讀兩頁書", name_en: "Read two pages quietly", location_type: "indoor", minutes: 15, energy: "low" },
+      { id: "A05", name_zh: "排好明日待辦", name_en: "Plan tomorrow’s tasks", location_type: "indoor", minutes: 20, energy: "low" },
+      { id: "A06", name_zh: "整理本機練習檔", name_en: "Organize practice files", location_type: "indoor", minutes: 30, energy: "medium" },
+      { id: "A07", name_zh: "在合適位置慢走", name_en: "Take a gentle walk in a suitable area", location_type: "outdoor", minutes: 15, energy: "low" },
+      { id: "A08", name_zh: "觀察天空並畫草圖", name_en: "Observe the sky and sketch", location_type: "outdoor", minutes: 20, energy: "low" },
+      { id: "A09", name_zh: "在合適位置快走", name_en: "Take a brisk walk in a suitable area", location_type: "outdoor", minutes: 30, energy: "medium" },
+      { id: "A10", name_zh: "規劃小組練習", name_en: "Plan a group exercise", location_type: "indoor", minutes: 45, energy: "medium" },
+      { id: "A11", name_zh: "記錄自然色彩", name_en: "Record colors in nature", location_type: "outdoor", minutes: 45, energy: "low" },
+      { id: "A12", name_zh: "構思下一次社團活動", name_en: "Brainstorm a future club activity", location_type: "indoor", minutes: 60, energy: "medium" }
+    ];
+    const text = {
+      zh: {
+        eyebrow: "一段校園小休息", title: "課間，我想做什麼？", pickerHeading: "挑一個適合現在的活動",
+        intro: "設定地點、時間與精力，再從符合全部條件的活動中隨機挑選。", locationLabel: "地點", allLocations: "不限地點", indoor: "室內", outdoor: "室外",
+        timeLabel: "可用時間", time15: "15 分鐘內", time30: "30 分鐘內", time60: "60 分鐘內", energyLabel: "精力", allEnergy: "不限精力", low: "低", medium: "中", pickButton: "幫我選一個", resetButton: "重設篩選",
+        resultKicker: "你的下一個小休息", placeholder: "選好條件後，按「幫我選一個」。", noMatch: "沒有符合條件的活動。", picked: "為你選出", minutes: "分鐘",
+        historyHeading: "最近選過", clearButton: "清空紀錄", historyNote: "只保留這個頁面工作階段最近 5 次成功抽選。", historyEmpty: "還沒有抽選紀錄。",
+        locationIndoor: "室內", locationOutdoor: "室外", energyLow: "低精力", energyMedium: "中精力", disclaimer: "教學模擬活動；不是校方公告。", languageLabel: "語言"
+      },
+      en: {
+        eyebrow: "A SMALL CAMPUS BREAK", title: "What can I do between classes?", pickerHeading: "Pick an activity for right now",
+        intro: "Choose a place, time and energy level. The picker uses activities that match every filter.", locationLabel: "Location", allLocations: "Any location", indoor: "Indoor", outdoor: "Outdoor",
+        timeLabel: "Available time", time15: "Up to 15 minutes", time30: "Up to 30 minutes", time60: "Up to 60 minutes", energyLabel: "Energy", allEnergy: "Any energy", low: "Low", medium: "Medium", pickButton: "Pick an activity", resetButton: "Reset filters",
+        resultKicker: "Your next little break", placeholder: "Choose your filters, then pick an activity.", noMatch: "No matching activities.", picked: "Your pick", minutes: "min",
+        historyHeading: "Recent picks", clearButton: "Clear history", historyNote: "The five most recent successful picks in this page session.", historyEmpty: "No picks yet.",
+        locationIndoor: "Indoor", locationOutdoor: "Outdoor", energyLow: "Low energy", energyMedium: "Medium energy", disclaimer: "Fictional teaching activities; not an official university announcement.", languageLabel: "Language"
+      }
+    };
+    const byId = (id) => document.getElementById(id);
+    const state = { language: "zh", history: [], current: null, noMatch: false };
+    const locationSelect = byId("location");
+    const timeSelect = byId("time");
+    const energySelect = byId("energy");
+
+    function activityName(activity) { return state.language === "zh" ? activity.name_zh : activity.name_en; }
+    function locationName(value) { return text[state.language][value === "indoor" ? "locationIndoor" : "locationOutdoor"]; }
+    function energyName(value) { return text[state.language][value === "low" ? "energyLow" : "energyMedium"]; }
+    function renderLanguage() {
+      document.documentElement.lang = state.language === "zh" ? "zh-Hant" : "en";
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        const key = element.dataset.i18n;
+        element.textContent = text[state.language][key];
+      });
+      byId("lang-zh").setAttribute("aria-pressed", String(state.language === "zh"));
+      byId("lang-en").setAttribute("aria-pressed", String(state.language === "en"));
+      document.querySelector(".language").setAttribute("aria-label", text[state.language].languageLabel);
+      renderResult();
+      renderHistory();
+    }
+    function renderResult() {
+      const result = byId("result");
+      result.replaceChildren();
+      const kicker = document.createElement("p");
+      kicker.className = "result-kicker";
+      kicker.textContent = text[state.language].resultKicker;
+      result.append(kicker);
+      if (state.noMatch) {
+        const message = document.createElement("p");
+        message.className = "message";
+        message.textContent = text[state.language].noMatch;
+        result.append(message);
+        return;
+      }
+      if (!state.current) {
+        const placeholder = document.createElement("p");
+        placeholder.className = "placeholder";
+        placeholder.textContent = text[state.language].placeholder;
+        result.append(placeholder);
+        return;
+      }
+      const title = document.createElement("h3");
+      title.textContent = activityName(state.current);
+      const tags = document.createElement("div");
+      tags.className = "tags";
+      [state.current.id, `${state.current.minutes} ${text[state.language].minutes}`, locationName(state.current.location_type), energyName(state.current.energy)].forEach((value) => {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = value;
+        tags.append(tag);
+      });
+      result.append(title, tags);
+    }
+    function renderHistory() {
+      const list = byId("history");
+      list.replaceChildren();
+      if (state.history.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "history-empty";
+        empty.textContent = text[state.language].historyEmpty;
+        list.append(empty);
+        return;
+      }
+      state.history.forEach((activity) => {
+        const item = document.createElement("li");
+        item.className = "history-item";
+        const id = document.createElement("span");
+        id.className = "history-id";
+        id.textContent = activity.id;
+        const details = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "history-name";
+        name.textContent = activityName(activity);
+        const meta = document.createElement("div");
+        meta.className = "history-meta";
+        meta.textContent = `${activity.minutes} ${text[state.language].minutes} · ${locationName(activity.location_type)} · ${energyName(activity.energy)}`;
+        details.append(name, meta);
+        item.append(id, details);
+        list.append(item);
+      });
+    }
+    function pickActivity() {
+      const location = locationSelect.value;
+      const maxMinutes = Number(timeSelect.value);
+      const energy = energySelect.value;
+      const matches = activities.filter((activity) =>
+        (location === "all" || activity.location_type === location) &&
+        activity.minutes <= maxMinutes &&
+        (energy === "all" || activity.energy === energy)
+      );
+      if (matches.length === 0) {
+        state.noMatch = true;
+        renderResult();
+        return;
+      }
+      state.current = matches[Math.floor(Math.random() * matches.length)];
+      state.noMatch = false;
+      state.history.unshift(state.current);
+      state.history = state.history.slice(0, 5);
+      renderResult();
+      renderHistory();
+    }
+    function resetFilters() {
+      locationSelect.value = "all";
+      timeSelect.value = "30";
+      energySelect.value = "all";
+    }
+    byId("pick").addEventListener("click", pickActivity);
+    byId("reset").addEventListener("click", resetFilters);
+    byId("clear").addEventListener("click", () => { state.history = []; renderHistory(); });
+    byId("lang-zh").addEventListener("click", () => { state.language = "zh"; renderLanguage(); });
+    byId("lang-en").addEventListener("click", () => { state.language = "en"; renderLanguage(); });
+    renderLanguage();
+  </script>
+</body>
+</html>
+
