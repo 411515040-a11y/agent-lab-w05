@@ -68,7 +68,9 @@
     .history-empty { border: 1px dashed var(--line); border-radius: .8rem; padding: 1rem; color: var(--muted); text-align: center; }
     footer { margin-top: 1rem; padding: .85rem 1rem; color: #4d665e; font-size: .82rem; text-align: center; }
     @media (max-width: 720px) { .shell { width: min(100% - 1.1rem, 600px); padding-top: 1rem; } main { grid-template-columns: 1fr; } header { align-items: center; } }
-    @media (max-width: 460px) { .filters { grid-template-columns: 1fr; gap: .65rem; } .brand-mark { width: 2.6rem; height: 2.6rem; } .picker, .history { padding: 1rem; } .language button { padding: .4rem .58rem; } }
+    /* New requirement for v2: make filters easier to scan and tap on narrow screens. */
+    @media (max-width: 560px) { .filters { grid-template-columns: 1fr; gap: .65rem; } label { font-size: .95rem; } select { min-height: 3rem; } }
+    @media (max-width: 460px) { .brand-mark { width: 2.6rem; height: 2.6rem; } .picker, .history { padding: 1rem; } .language button { padding: .4rem .58rem; } }
   </style>
 </head>
 <body>
