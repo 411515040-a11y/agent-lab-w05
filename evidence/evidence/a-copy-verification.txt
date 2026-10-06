@@ -1,0 +1,19 @@
+Task A copy verification
+Method: SHA-256 for each source and manifest destination, compared by hash.
+Result:
+proposal_final.txt -> planning/proposal_final.txt | MATCH
+proposal_final2.txt -> planning/proposal_final2.txt | MATCH
+meeting_notes.txt -> planning/meeting_notes.txt | MATCH
+next_steps.txt -> planning/next_steps.txt | MATCH
+rain_plan.txt -> planning/rain_plan.txt | MATCH
+announcement.txt -> communications/announcement.txt | MATCH
+announcement_copy.txt -> communications/announcement_copy.txt | MATCH
+poster_text.txt -> communications/poster_text.txt | MATCH
+feedback_questions.txt -> communications/feedback_questions.txt | MATCH
+budget_draft.txt -> resources/budget_draft.txt | MATCH
+equipment_list.txt -> resources/equipment_list.txt | MATCH
+equipment_backup.txt -> resources/equipment_backup.txt | MATCH
+Total manifest entries: 12
+Input files: 12
+Output copies: 12
+Output copies matching source hashes: 12

@@ -29,4 +29,4 @@
 - Compared SHA-256 hashes: the announcement pair match; the equipment pair match; the two proposal versions differ.
 - Copied each input once into a category; did not delete or modify originals.
 - Output folder was absent before this run.
-- A byte-for-byte verification of every output copy is still pending.
+- Verified every manifest source/destination pair with SHA-256: all 12 output copies match their inputs. The verification log is in `evidence/evidence/a-copy-verification.txt`.
